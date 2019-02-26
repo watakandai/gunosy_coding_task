@@ -1,0 +1,14 @@
+language: python
+env:
+  - DJANGO=1.11
+python:
+  - '3.6'
+
+before_install:
+  - pip install --upgrade pip setuptools wheel
+  - pip install -r requirements.txt
+  - pip install -q Django==$DJANGO
+  - pip install pep8
+    
+script:
+  - pep8 .
