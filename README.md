@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/watakandhi/gunosy_coding_task.svg?token=UPeNZfpEiF2sCZduAo4d&branch=master)](https://travis-ci.com/watakandhi/gunosy_coding_task)
+
 # 課題
 - Step1: 記事URLを入れると記事カテゴリを返す、ナイーブベイズを使った教師あり文書分類器ウェブアプリの実装 on docker
 - Step2: 文書分類性能の改善
