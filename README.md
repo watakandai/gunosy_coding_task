@@ -1,5 +1,21 @@
 [![Build Status](https://travis-ci.com/watakandhi/gunosy_coding_task.svg?token=UPeNZfpEiF2sCZduAo4d&branch=master)](https://travis-ci.com/watakandhi/gunosy_coding_task)
 
+# Steps
+```
+docker build .
+```
+
+**If django project is not built**
+Skip this part if the project is already built and you just want to play around with it.
+```
+docker-compose build 
+docker-compose run webapp sh -c "django-admin.py startproject doc_classsify ."
+docker-compose run webapp python manage.py migrate
+```
+
+
+
+
 # 課題
 - Step1: 記事URLを入れると記事カテゴリを返す、ナイーブベイズを使った教師あり文書分類器ウェブアプリの実装 on docker
 - Step2: 文書分類性能の改善
