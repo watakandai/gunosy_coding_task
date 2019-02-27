@@ -4,7 +4,7 @@
 ![home_view](images/home_view.png)
 ![transition_view](images/transition_view.png)
 
-# Steps
+# Steps to launch the site
 ```
 docker build .
 ```
