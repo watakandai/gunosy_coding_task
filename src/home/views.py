@@ -6,21 +6,19 @@ from scripts.utils import html_to_text_img
 
 # cf = Classifier('NaiveBayes')
 
+
 def home(request):
     url = request.GET.get('url')
-    article_text, img_url= html_to_text_img(url)
-    
+    article_text, img_url = html_to_text_img(url)
     # category = cf.classify(article_text)
 
     if article_text is None:
         category = "Please enter URL."
-    else: 
+    else:
         category = article_text
     if img_url is not None:
         img_url = 'https:' + img_url
 
     return render(request, 'form.html', {
-                    'category': category, 
-                    'img_url': img_url}
-                )
-
+        'category': category,
+        'img_url': img_url})

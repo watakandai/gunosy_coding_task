@@ -1,8 +1,8 @@
-# 命名規則： PEP8
 from urllib.request import urlopen
 from urllib.error import HTTPError, URLError
 from bs4 import BeautifulSoup
 import logging
+
 
 def html_to_text_img(url):
     if url is '' or url is None:

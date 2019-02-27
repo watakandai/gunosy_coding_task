@@ -53,10 +53,11 @@
 <span class="sd">This script collects data, train, and test classifiers.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+
 <div class="viewcode-block" id="collect_and_save_data"><a class="viewcode-back" href="../../run.html#scripts.run.collect_and_save_data">[docs]</a><span class="k">def</span> <span class="nf">collect_and_save_data</span><span class="p">(</span><span class="n">n_data</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Collects title/category data from Gunosy websites</span>
-<span class="sd">    </span>
+<span class="sd">    Collects title &amp; category data from the Gunosy websites</span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------------</span>
 <span class="sd">    n_data : int</span>
@@ -71,7 +72,7 @@
 <span class="sd">    that is saved in db</span>
 <span class="sd">    After the traning, it saves its parameters</span>
 <span class="sd">    as pickle data.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------------</span>
 <span class="sd">    classifier_name : str</span>
@@ -92,14 +93,14 @@
 
 <div class="viewcode-block" id="test_classifiers"><a class="viewcode-back" href="../../run.html#scripts.run.test_classifiers">[docs]</a><span class="k">def</span> <span class="nf">test_classifiers</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Test classifiers and plots comparisons</span>
-<span class="sd">    </span>
+<span class="sd">    Tests classifiers and plots comparisons</span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------------</span>
 <span class="sd">    classifier_name : str</span>
 <span class="sd">        Name of the classifier</span>
 <span class="sd">        Choose &#39;all&#39; if all classifieres to be trained</span>
-
+<span class="sd">        </span>
 <span class="sd">    Returns </span>
 <span class="sd">    ----------------</span>
 <span class="sd">    accuracies : list of floats</span>
