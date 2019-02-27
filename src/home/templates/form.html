@@ -1,0 +1,22 @@
+{%extends "base.html" %}
+
+{%block body %}
+
+<h1>Document Classification</h1>
+<p>This webapp classifies a Gunosy article to one of their categories</p>
+<p>Please provide an url below</p>
+<form action = "" method="get">
+    <label>
+        url：<input type="url" size = "30" name ="url">
+        <input type="submit" name="Enter">
+    </label>
+</form>
+
+{% if category %}
+<p>{{category}}</p><br>
+{% endif %}
+{% if img_url %}
+<img src={{img_url}} alt="Cannot load imge"/>
+<p>{{img_url}}</p>
+{% endif %}
+{% endblock %}
