@@ -1,5 +1,9 @@
 [![Build Status](https://travis-ci.com/watakandhi/gunosy_coding_task.svg?token=UPeNZfpEiF2sCZduAo4d&branch=master)](https://travis-ci.com/watakandhi/gunosy_coding_task)
 
+# To get the image
+![home_view](images/home_view.png)
+![transition_view](images/transition_view.png)
+
 # Steps
 ```
 docker build .
