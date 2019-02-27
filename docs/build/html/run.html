@@ -1,0 +1,175 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Running script for collecting, training, testing &#8212; doc_classify 1.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/cloud.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Noticia+Text|Open+Sans|Droid+Sans+Mono" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/jquery.cookie.js"></script>
+    <script type="text/javascript" src="_static/cloud.base.js"></script>
+    <script type="text/javascript" src="_static/cloud.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head><body>
+    <div class="relbar-top">
+        
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+    <li><a href="index.html">doc_classify 1.0.0 documentation</a> &#187;</li>
+ 
+      </ul>
+    </div>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="running-script-for-collecting-training-testing">
+<h1>Running script for collecting, training, testing<a class="headerlink" href="#running-script-for-collecting-training-testing" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-scripts.run">
+<span id="run"></span><h2>run<a class="headerlink" href="#module-scripts.run" title="Permalink to this headline">¶</a></h2>
+<p>This script collects data, train, and test classifiers.</p>
+<dl class="function">
+<dt id="scripts.run.collect_and_save_data">
+<code class="descclassname">scripts.run.</code><code class="descname">collect_and_save_data</code><span class="sig-paren">(</span><em>n_data=1000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/run.html#collect_and_save_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.run.collect_and_save_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collects title/category data from Gunosy websites</p>
+<dl class="docutils">
+<dt>n_data <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Number of data</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.run.test_classifiers">
+<code class="descclassname">scripts.run.</code><code class="descname">test_classifiers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/run.html#test_classifiers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.run.test_classifiers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test classifiers and plots comparisons</p>
+<dl class="docutils">
+<dt>classifier_name <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>Name of the classifier
+Choose ‘all’ if all classifieres to be trained</dd>
+</dl>
+<dl class="docutils">
+<dt>accuracies <span class="classifier-delimiter">:</span> <span class="classifier">list of floats</span></dt>
+<dd>Accuracy of each classifier</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.run.train_classifier">
+<code class="descclassname">scripts.run.</code><code class="descname">train_classifier</code><span class="sig-paren">(</span><em>classifier_name='naive_bayes'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/run.html#train_classifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.run.train_classifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Trains classifiers with collected dataset
+that is saved in db
+After the traning, it saves its parameters
+as pickle data.</p>
+<dl class="docutils">
+<dt>classifier_name <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>Name of the classifier
+Choose ‘all’ if all classifieres to be trained</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="sphinx-toc sphinxlocaltoc">
+    <h3><a href="index.html">Page contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Running script for collecting, training, testing</a><ul>
+<li><a class="reference internal" href="#module-scripts.run">run</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/run.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+    
+    
+        <div class="sidebar-toggle-group no-js">
+            
+            <button class="sidebar-toggle" id="sidebar-hide" title="Hide the sidebar menu">
+                 «
+                <span class="show-for-small">hide menu</span>
+                
+            </button>
+            <button class="sidebar-toggle" id="sidebar-show" title="Show the sidebar menu">
+                
+                <span class="show-for-small">menu</span>
+                <span class="hide-for-small">sidebar</span>
+                 »
+            </button>
+        </div>
+    
+      <div class="clearer"></div>
+    </div>
+    <div class="relbar-bottom">
+        
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+    <li><a href="index.html">doc_classify 1.0.0 documentation</a> &#187;</li>
+ 
+      </ul>
+    </div>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, kandai.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.8.
+    </div>
+    <!-- cloud_sptheme 1.4 -->
+  </body>
+</html>
