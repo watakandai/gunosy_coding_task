@@ -1,9 +1,12 @@
 FROM python:3.6-alpine
 ENV PYTHONUNBUFFERED 1
-RUN mkdir /ws
-WORKDIR /ws
-COPY . /ws
-RUN pip install -r requirements.txt
+
+COPY ./requirements.txt /requirements.txt
+RUN pip install -r /requirements.txt
+
+RUN mkdir /src
+WORKDIR /src
+COPY ./src /src
 
 RUN adduser -D user
 USER user
