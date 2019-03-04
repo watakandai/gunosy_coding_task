@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from .forms import HomeForm
-from scripts.utils import html_to_text_img
+from scripts.html_to_text_img import html_to_text_img
 # from scripts.classifier import Classifier
 
 # cf = Classifier('NaiveBayes')
