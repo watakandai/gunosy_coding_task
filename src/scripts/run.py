@@ -91,3 +91,45 @@ def collect_and_save_data():
                 time.sleep(1)
     conn.close()
 
+
+def train_classifier(classifier_name='naive_bayes'):
+    """
+    Trains classifiers with collected dataset
+    that is saved in db
+    After the traning, it saves its parameters
+    as pickle data.
+
+    Parameters
+    ----------------
+    classifier_name : str
+        Name of the classifier
+        Choose 'all' if all classifiers to be trained
+    """
+    # load data
+    DB_NAME = 'train.db'
+    TABLE_NAME = 'home_article'
+    # dict -> list
+    category_lists = list(categories.values())
+    print("Category Lists: ", *category_lists, sep=', ')
+    # load train data
+    train_data = load_data(DB_NAME, TABLE_NAME, use_pkl=True)
+    # load classifier
+    cf = DocumentClassifier(T=category_lists, classifier_name=classifier_name)
+    # train with traning data
+    print('Start Training...')
+    cf.model.train(train_data)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Options as follows')
+    parser.add_argument('--collect', action='store_true')
+    parser.add_argument('--train', action='store_true')
+    parser.add_argument('--test', action='store_true')
+    args = parser.parse_args()
+
+    if args.collect:
+        collect_and_save_data()
+    if args.train:
+        train_classifier()
+    if args.test:
+        test_classifiers()
