@@ -4,8 +4,10 @@ beautifulsoup4==4.5.1
 Django==1.11
 docutils==0.14
 imagesize==1.1.0
+janome==0.3.7
 Jinja2==2.10
 MarkupSafe==1.1.1
+numpy==1.16.2
 packaging==19.0
 Pygments==2.3.1
 pyparsing==2.3.1
