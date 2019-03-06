@@ -81,8 +81,8 @@ docker-compose run webapp python manage.py migrate
 # 成果物
 - ソースコード（GitHubに上げる）
 - GitHubはプライベートレポジトリで作成する
-　　　　- privateリポジトリの利用、及びprivateリポジトリに対するtravis-ciの利用はgithub　student packに登録すれば無料です
-　　　　- こちらを参照してください: https://education.github.com/pack
+    - privateリポジトリの利用、及びprivateリポジトリに対するtravis-ciの利用はgithub　student packに登録すれば無料です
+    - こちらを参照してください: https://education.github.com/pack
 - 精度向上のために、行った工夫と実際の精度についてREADMEに記載してください
 
 # 期間
