@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class Article(models.Model):
     category = models.CharField(max_length=20)
     title = models.CharField(max_length=200)

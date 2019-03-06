@@ -27,3 +27,4 @@ def html_to_text_img(url):
     first_img_url = imgs[0]['data-src']
 
     return text, first_img_url
+
