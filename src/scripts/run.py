@@ -120,6 +120,37 @@ def train_classifier(classifier_name='naive_bayes'):
     cf.model.train(train_data)
 
 
+def test_classifiers():
+    """
+    Tests classifiers and plots comparisons
+
+    Parameters
+    ----------------
+    classifier_name : str
+        Name of the classifier
+        Choose 'all' if all classifieres to be trained
+
+    Returns
+    ----------------
+    accuracies : list of floats
+        Accuracy of each classifier
+    """
+    # load data
+    DB_NAME = 'test.db'
+    TABLE_NAME = 'home_article'
+    category_lists = list(categories.values())
+    # load data
+    test_data = load_data(DB_NAME, TABLE_NAME, filename='test.pkl' ,use_pkl=False)
+    # load classifiers with parameters
+    cf = DocumentClassifier(T=category_lists)
+    # test with test data
+    result, accuracy = cf.model.test(test_data)
+
+    print(accuracy)
+
+    return result
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Options as follows')
     parser.add_argument('--collect', action='store_true')
