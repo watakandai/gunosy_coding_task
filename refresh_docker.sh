@@ -6,7 +6,7 @@
 # then run ./refresh_docker.sh  #
 #################################
 
-docker rmi $(docker images -q)
-docker build .
+#docker stop $(docker ps -q -a)
+#docker rm $(docker ps -q -a)
 docker-compose build 
 docker-compose run webapp python manage.py migrate
