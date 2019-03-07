@@ -2,7 +2,7 @@
 This script loads train and test data
 """
 import os
-from time import sleep 
+from time import sleep
 import pickle
 import random
 import sqlite3
@@ -10,9 +10,9 @@ from utils import MorphologicalAnalyzer as MA
 from utils import DBManager, Data
 
 
-def load_data(db_name, table_name, word_class=["名詞", "動詞"], filename = 'parsed_data.pkl', use_pkl=True):
+def load_data(db_name, table_name, word_class=["名詞", "動詞"], filename='parsed_data.pkl', use_pkl=True):
     """
-    loads data and parse sentence into words 
+    loads data and parse sentence into words
     data:  [(cat1, sentenc1)]
     storage:  [(cat1,word1), ..., (catn,wordn)]
     """
@@ -32,7 +32,7 @@ def load_data(db_name, table_name, word_class=["名詞", "動詞"], filename = '
         parsed_data = []
         for data in unparsed_data:
                 category = data[1]
-                words = ma.split(data[2]) 
+                words = ma.split(data[2])
                 parsed_data.append(Data(words, category))
 
         # save parameters

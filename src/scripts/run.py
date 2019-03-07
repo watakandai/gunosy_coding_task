@@ -31,10 +31,12 @@ def collect_and_save_data():
     """
     Collects title & category data from the Gunosy websites
     """
+    DB_NAME = 'test.db'
+    TABLE_NAME = 'home_article'
     # connect to database
     conn = sqlite3.connect(DB_NAME)
     curs = conn.cursor()
-    
+
     # How many Pages per category
     PAGE_START = 1
     PAGE_END = 5
@@ -53,8 +55,7 @@ def collect_and_save_data():
             continue
 
         # List of URLs of each page
-        page_urls = ["%s?page=%s" % (category_url, i_page)\
-                    for i_page in range(PAGE_START, PAGE_END + 1)]
+        page_urls = ["%s?page=%s" % (category_url, i_page) for i_page in range(PAGE_START, PAGE_END + 1)]
 
         # For each page, get articles
         for page_url in page_urls:
@@ -75,8 +76,7 @@ def collect_and_save_data():
             for i_article in range(ARTICLE_START, ARTICLE_END):
                 try:
                     page_title = category_page_object.find_all("div", {
-                        "class": "list_title"})\
-                        [i_article].a.get_text()
+                        "class": "list_title"})[i_article].a.get_text()
                 except AttributeError as e:
                     print(e)
                     continue
@@ -140,7 +140,7 @@ def test_classifiers():
     TABLE_NAME = 'home_article'
     category_lists = list(categories.values())
     # load data
-    test_data = load_data(DB_NAME, TABLE_NAME, filename='test.pkl' ,use_pkl=False)
+    test_data = load_data(DB_NAME, TABLE_NAME, filename='test.pkl', use_pkl=False)
     # load classifiers with parameters
     cf = DocumentClassifier(T=category_lists)
     # test with test data

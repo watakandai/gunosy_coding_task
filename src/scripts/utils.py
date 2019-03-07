@@ -32,6 +32,7 @@ def html_to_text_img(url):
 
     return text, first_img_url
 
+
 class DBManager():
     """
     connect to a database and manage the data
@@ -41,7 +42,7 @@ class DBManager():
     db_name: str
         name of a database
     table_name: str
-        name of a table 
+        name of a table
     """
     def __init__(self, db_name, table_name):
         self.db_name = db_name
@@ -56,9 +57,9 @@ class DBManager():
         Parameters
         ----------------
         s: str
-            name of a key (column) 
+            name of a key (column)
         """
-        self.curs.execute("SELECT %s FROM %s"%(s, self.table_name))
+        self.curs.execute("SELECT %s FROM %s" % (s, self.table_name))
         return self.curs.fetchall()
 
     def select_all(self):
@@ -70,9 +71,9 @@ class Data():
     """
     Parameters
     --------------
-    t: 
+    t:
         teacher data
-    x: 
+    x:
         raw data
     """
     def __init__(self, X, t):
@@ -83,11 +84,11 @@ class Data():
 class MorphologicalAnalyzer():
     """
     analyze a sentence and divides into list of words
-    
+
     Parameters
     --------------
     word_class: list of str
-        word class you want 
+        word class you want
     """
     def __init__(self, word_class=["形容詞", "形容動詞", "感動詞", "副詞", "連体詞", "名詞", "動詞"]):
         self.word_class = word_class
@@ -112,12 +113,12 @@ class Probability():
 
     def initialize(self, keys):
         for key in keys:
-            self.dict[key] = 0  
+            self.dict[key] = 0
 
     def increment(self, key):
         if self.dict.get(key) is None:
             # if a key does not exist
-            # add the key to keys and dict 
+            # add the key to keys and dict
             self.keys.append(key)
             self.dict[key] = 0
         else:
@@ -128,19 +129,18 @@ class Probability():
         sum_of_values = sum(self.dict.values())
         if sum_of_values is not 0:
             for key in self.dict:
-                self.dict[key] = self.dict[key]/sum_of_values
+                self.dict[key] = self.dict[key] / sum_of_values
 
     def normalize_with_smoothing(self, X_count):
         self.X_count = X_count
         sum_of_values = sum(self.dict.values())
         if sum_of_values is not 0:
             for key in self.dict:
-                self.dict[key] = (self.dict[key]+1)/(sum_of_values+X_count)
-
+                self.dict[key] = (self.dict[key] + 1) / (sum_of_values + X_count)
 
     def get(self, key):
         if self.dict.get(key) is None:
-            return 1/self.X_count
+            return 1 / self.X_count
         else:
             return self.dict[key]
 
@@ -148,7 +148,7 @@ class Probability():
 class ConditionalProbability():
     def __init__(self, T):
         self.dict = {}
-        self.T = T 
+        self.T = T
         self.initialize(T)
 
     def initialize(self, T):
@@ -165,6 +165,6 @@ class ConditionalProbability():
 
     def get(self, x, t):
         if self.dict.get(t) is None:
-            return 1/len(self.T)
+            return 1 / len(self.T)
         else:
             return self.dict[t].get(x)

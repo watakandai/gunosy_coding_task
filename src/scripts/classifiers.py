@@ -28,7 +28,6 @@ class NaiveBayes():
         self.P_C = Probability(T)
         self.P_DC = ConditionalProbability(T)
 
-
     def train(self, data):
         """
         P(C) = Cat1 / Cat_all
@@ -49,11 +48,9 @@ class NaiveBayes():
         self.P_C.normalize()
         self.P_DC.normalize(len(self.words))
 
-
         # save parameters
         with open(self.filename, 'wb') as f:
             pickle.dump([self.P_C, self.P_DC], f)
-
 
     def classify(self, X):
         # calculate score of a given data x
@@ -61,24 +58,21 @@ class NaiveBayes():
         for t in self.T:
             score = math.log(self.P_C.get(t))
             for x in X:
-                p_dc = self.P_DC.get(x,t)
+                p_dc = self.P_DC.get(x, t)
                 score += math.log(p_dc)
-            scores.append(score) 
+            scores.append(score)
 
         # choose the highest score category as a predicted category
-        #print(self.T)
-        #print(scores)
         indx = scores.index(max(scores))
         category = self.T[indx]
 
         return category
 
-
     def test(self, data):
         # load parameters from pkl file
         with open(self.filename, 'rb') as f:
             self.P_C, self.P_DC = pickle.load(f)
-        
+
         # check if predicted class is correct
         predicted = []
         accuracy = 0
@@ -87,7 +81,7 @@ class NaiveBayes():
             if pred == d.t:
                 accuracy += 1
             predicted.append(pred)
-            print('(Pred,Ans): (%s, %s)'%(pred, d.t))
+            print('(Pred,Ans): (%s, %s)' % (pred, d.t))
         # calculate accuracy from accumulated scores
         accuracy = accuracy / len(data)
 
