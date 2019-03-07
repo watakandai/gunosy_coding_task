@@ -1,23 +1,17 @@
+"""
+How to improve the accuracy!
+1. Tweek Naive Bayes classifier
+2. Choose other classifier
+3. Mix
+
+1. Naive Bayes
+ - Selection of a word class (Morphological Analaysis)
+ - Adaboost
+"""
+
 import math
 import pickle
 from utils import Probability, ConditionalProbability
-
-
-class DocumentClassifier():
-    def __init__(self, T, classifier_name='naive_bayes'):
-        """
-        Document Classifier
-
-        Parameters
-        ----------------
-        T: list
-            teacher data to classify to
-        classifier_name : str
-            Name of the classifier
-            Choose 'all' if all classifieres to be trained
-        """
-        if classifier_name is 'naive_bayes':
-            self.model = NaiveBayes(T)
 
 
 class NaiveBayes():
@@ -68,7 +62,7 @@ class NaiveBayes():
 
         return category
 
-    def test(self, data):
+    def test(self, data, verbose=False):
         # load parameters from pkl file
         with open(self.filename, 'rb') as f:
             self.P_C, self.P_DC = pickle.load(f)
@@ -81,7 +75,8 @@ class NaiveBayes():
             if pred == d.t:
                 accuracy += 1
             predicted.append(pred)
-            print('(Pred,Ans): (%s, %s)' % (pred, d.t))
+            if verbose is True:
+                print('(Pred,Ans): (%s, %s)' % (pred, d.t))
         # calculate accuracy from accumulated scores
         accuracy = accuracy / len(data)
 

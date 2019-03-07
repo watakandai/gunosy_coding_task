@@ -4,12 +4,15 @@ This script collects data, train, and test classifiers.
 import time
 import sqlite3
 import argparse
+import numpy as np
 from enum import Enum
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 from urllib.error import HTTPError, URLError
 from janome.tokenizer import Tokenizer
-from classifiers import DocumentClassifier
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.ensemble import RandomForestClassifier as RFC
+from classifiers import NaiveBayes
 from load_data import load_data
 # https://note.nkmk.me/python-janome-tutorial/
 
@@ -27,14 +30,12 @@ categories = {
 }
 
 
-def collect_and_save_data():
+def collect_and_save_data(db_name='test.db', table_name='home_article'):
     """
     Collects title & category data from the Gunosy websites
     """
-    DB_NAME = 'test.db'
-    TABLE_NAME = 'home_article'
     # connect to database
-    conn = sqlite3.connect(DB_NAME)
+    conn = sqlite3.connect(db_name)
     curs = conn.cursor()
 
     # How many Pages per category
@@ -81,7 +82,7 @@ def collect_and_save_data():
                     print(e)
                     continue
 
-                insert_sql = 'INSERT INTO {0} VALUES(?, ?, ?)'.format(TABLE_NAME)
+                insert_sql = 'INSERT INTO {0} VALUES(?, ?, ?)'.format(table_name)
                 data = (current_article, category_name, page_title)
                 curs.execute(insert_sql, data)
                 conn.commit()
@@ -92,60 +93,42 @@ def collect_and_save_data():
     conn.close()
 
 
-def train_classifier(classifier_name='naive_bayes'):
+def test_classifier():
     """
-    Trains classifiers with collected dataset
-    that is saved in db
-    After the traning, it saves its parameters
-    as pickle data.
-
-    Parameters
-    ----------------
-    classifier_name : str
-        Name of the classifier
-        Choose 'all' if all classifiers to be trained
+    Trains classifiers with collected dataset that is saved in db
+    After the traning, it saves its parameters as pickle data.
     """
-    # load data
-    DB_NAME = 'train.db'
-    TABLE_NAME = 'home_article'
+    # Parameter
+    table_name = 'home_article'
+    train_db = 'train.db'
+    test_db = 'test.db'
     # dict -> list
     category_lists = list(categories.values())
     print("Category Lists: ", *category_lists, sep=', ')
+
     # load train data
-    train_data = load_data(DB_NAME, TABLE_NAME, use_pkl=True)
-    # load classifier
-    cf = DocumentClassifier(T=category_lists, classifier_name=classifier_name)
+    train_data, train_T, train_X = load_data(train_db, table_name, filename='train_data.pkl', use_pkl=True)
+    test_data, test_T, test_X = load_data(test_db, table_name, filename='test_data.pkl', use_pkl=True)
+    # convert from ['a', 'b'] to ['a b'] for CountVectorizer
+    train_X = [' '.join(X) for X in train_X]
+    test_X = [' '.join(X) for X in test_X]
+    # bag of words -> count each word frequency and turn into a numeric vector
+    vectorizer = CountVectorizer(token_pattern=u'(?u)\\b\\w+\\b')
+    train_X_features = vectorizer.fit_transform(train_X + test_X)
+
+    # load classifiers
+    clf = NaiveBayes(T=category_lists)
+    rfc = RFC(n_estimators=100, n_jobs=-1)
+
     # train with traning data
     print('Start Training...')
-    cf.model.train(train_data)
+    clf.train(train_data)
+    rfc.fit(train_X_features[:len(train_T)], train_T)
 
-
-def test_classifiers():
-    """
-    Tests classifiers and plots comparisons
-
-    Parameters
-    ----------------
-    classifier_name : str
-        Name of the classifier
-        Choose 'all' if all classifieres to be trained
-
-    Returns
-    ----------------
-    accuracies : list of floats
-        Accuracy of each classifier
-    """
-    # load data
-    DB_NAME = 'test.db'
-    TABLE_NAME = 'home_article'
-    category_lists = list(categories.values())
-    # load data
-    test_data = load_data(DB_NAME, TABLE_NAME, filename='test.pkl', use_pkl=False)
-    # load classifiers with parameters
-    cf = DocumentClassifier(T=category_lists)
     # test with test data
-    result, accuracy = cf.model.test(test_data)
-
+    result, accuracy = clf.test(test_data, verbose=False)
+    print(accuracy)
+    accuracy = rfc.score(train_X_features[len(train_T):], test_T)
     print(accuracy)
 
     return result
@@ -154,13 +137,10 @@ def test_classifiers():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Options as follows')
     parser.add_argument('--collect', action='store_true')
-    parser.add_argument('--train', action='store_true')
     parser.add_argument('--test', action='store_true')
     args = parser.parse_args()
 
     if args.collect:
         collect_and_save_data()
-    if args.train:
-        train_classifier()
     if args.test:
-        test_classifiers()
+        test_classifier()
