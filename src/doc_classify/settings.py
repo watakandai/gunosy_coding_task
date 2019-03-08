@@ -25,7 +25,7 @@ SECRET_KEY = 'a72nwbs5ni(d78@rbh_x(n-49l6dj4+x7_!$-&1u_jt^k%16=a'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['0.0.0.0']
 
 
 # Application definition
@@ -77,7 +77,7 @@ WSGI_APPLICATION = 'doc_classify.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.splite3'),
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 

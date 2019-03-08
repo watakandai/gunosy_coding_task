@@ -17,8 +17,15 @@ docker-compose run webapp sh -c "django-admin.py startproject doc_classsify ."
 docker-compose run webapp python manage.py migrate
 ```
 
-
-
+```SupportVectorMachine
+https://www.sejuku.net/blog/64372
+https://leck-tech.com/machine-learning/svm
+https://qiita.com/ta-ka/items/e6fd0b6fc46dbab4a651
+https://satopirka.com/2018/12/theory-and-implementation-of-linear-support-vector-machine/
+```
+```RandomForest
+https://qiita.com/deaikei/items/52d84ccfedbfc3b222cb
+```
 
 # 課題
 - Step1: 記事URLを入れると記事カテゴリを返す、ナイーブベイズを使った教師あり文書分類器ウェブアプリの実装 on docker
