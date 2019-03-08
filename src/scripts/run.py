@@ -1,6 +1,7 @@
 """
 This script collects data, train, and test classifiers.
 """
+import dill
 import time
 import sqlite3
 import argparse
@@ -31,9 +32,7 @@ categories = {
 
 
 def collect_and_save_data(db_name='test.db', table_name='home_article'):
-    """
-    Collects title & category data from the Gunosy websites
-    """
+    """Collects title & category data from the Gunosy websites"""
     # connect to database
     conn = sqlite3.connect(db_name)
     curs = conn.cursor()
@@ -96,42 +95,40 @@ def collect_and_save_data(db_name='test.db', table_name='home_article'):
 def test_classifier():
     """
     Trains classifiers with collected dataset that is saved in db
-    After the traning, it saves its parameters as pickle data.
+    and test with test data which is separated with train data
     """
     # Parameter
     table_name = 'home_article'
     train_db = 'train.db'
     test_db = 'test.db'
-    # dict -> list
     category_lists = list(categories.values())
-    print("Category Lists: ", *category_lists, sep=', ')
 
     # load train data
-    train_data, train_T, train_X = load_data(train_db, table_name, filename='train_data.pkl', use_pkl=True)
-    test_data, test_T, test_X = load_data(test_db, table_name, filename='test_data.pkl', use_pkl=True)
-    # convert from ['a', 'b'] to ['a b'] for CountVectorizer
+    train_T, train_X = load_data(train_db, table_name, filename='train_data.pkl', use_pkl=False)
+    test_T, test_X = load_data(test_db, table_name, filename='test_data.pkl', use_pkl=False)
+    # convert from ['a', 'b'] to ['a b'] to use with CountVectorizer
     train_X = [' '.join(X) for X in train_X]
     test_X = [' '.join(X) for X in test_X]
-    # bag of words -> count each word frequency and turn into a numeric vector
+    # [bag of words] -> [count each word frequency] and turns into a numeric vector
+    # CountVectorizer is not used with a NaiveBayes classifier,
+    # as scikit-learn is not allowed to use with the first assignment
     vectorizer = CountVectorizer(token_pattern=u'(?u)\\b\\w+\\b')
-    train_X_features = vectorizer.fit_transform(train_X + test_X)
+    features = vectorizer.fit_transform(train_X + test_X)
 
     # load classifiers
-    clf = NaiveBayes(T=category_lists)
+    nb = NaiveBayes(T=category_lists)
     rfc = RFC(n_estimators=100, n_jobs=-1)
 
     # train with traning data
-    print('Start Training...')
-    clf.train(train_data)
-    rfc.fit(train_X_features[:len(train_T)], train_T)
+    params = nb.fit(train_X, train_T)
+    rfc.fit(features[:len(train_T)], train_T)
+    with open('test_params.pkl', 'wb') as f:
+        f.write(dill.dumps(params))
 
     # test with test data
-    result, accuracy = clf.test(test_data, verbose=False)
-    print(accuracy)
-    accuracy = rfc.score(train_X_features[len(train_T):], test_T)
-    print(accuracy)
-
-    return result
+    accuracy_nb = nb.score(test_X, test_T, verbose=False)
+    accuracy_rfc = rfc.score(features[len(train_T):], test_T)
+    print(accuracy_nb, accuracy_rfc)
 
 
 if __name__ == '__main__':

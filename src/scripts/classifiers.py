@@ -1,20 +1,20 @@
-"""
-How to improve the accuracy!
-1. Tweek Naive Bayes classifier
-2. Choose other classifier
-3. Mix
-
-1. Naive Bayes
- - Selection of a word class (Morphological Analaysis)
- - Adaboost
-"""
-
 import math
-import pickle
-from utils import Probability, ConditionalProbability
+import dill
 
 
 class NaiveBayes():
+    """
+    A classifier that predicts a category from a list of words
+    P(C) = category_1 / all categories
+    P(D|C) = { word_1 / all words in a category }
+
+    Parameters
+    ------------------
+    T: a list
+        a list of teacher data
+    filename: str
+        a name of a file to store parameters
+    """
     def __init__(self, T, filename='naive_bayes_params.pkl'):
         self.T = T
         self.filename = filename
@@ -22,21 +22,13 @@ class NaiveBayes():
         self.P_C = Probability(T)
         self.P_DC = ConditionalProbability(T)
 
-    def train(self, data):
-        """
-        P(C) = Cat1 / Cat_all
-              : how many cat1 out of all data
-        P(D|C) = { word1 / word_all_within_cat1 }
-              : how often word1 appeared in all words
-                that only appeared in cat1
-        """
-
+    def fit(self, X, T):
         # count word frequency for each word in each category
-        for d in data:
-            for x in d.X:
+        for t, xs in zip(T, X):
+            for x in xs:
                 self.words.add(x)
-                self.P_C.increment(d.t)
-                self.P_DC.increment(x, d.t)
+                self.P_C.increment(t)
+                self.P_DC.increment(x, t)
 
         # normalize values to get percentage
         self.P_C.normalize()
@@ -44,14 +36,21 @@ class NaiveBayes():
 
         # save parameters
         with open(self.filename, 'wb') as f:
-            pickle.dump([self.P_C, self.P_DC], f)
+            f.write(dill.dumps([self.P_C, self.P_DC]))
 
-    def classify(self, X):
+        return [self.P_C, self.P_DC]
+
+    def load_params(self):
+        # load parameters from pkl file
+        with open(self.filename, 'rb') as f:
+            self.P_C, self.P_DC = dill.loads(f.read())
+
+    def predict(self, xs):
         # calculate score of a given data x
         scores = []
         for t in self.T:
             score = math.log(self.P_C.get(t))
-            for x in X:
+            for x in xs:
                 p_dc = self.P_DC.get(x, t)
                 score += math.log(p_dc)
             scores.append(score)
@@ -62,22 +61,84 @@ class NaiveBayes():
 
         return category
 
-    def test(self, data, verbose=False):
-        # load parameters from pkl file
-        with open(self.filename, 'rb') as f:
-            self.P_C, self.P_DC = pickle.load(f)
-
+    def score(self, X, T, verbose=False):
         # check if predicted class is correct
         predicted = []
         accuracy = 0
-        for d in data:
-            pred = self.classify(d.X)
-            if pred == d.t:
+        for t, xs in zip(T, X):
+            pred = self.predict(xs)
+            if pred == t:
                 accuracy += 1
             predicted.append(pred)
             if verbose is True:
-                print('(Pred,Ans): (%s, %s)' % (pred, d.t))
-        # calculate accuracy from accumulated scores
-        accuracy = accuracy / len(data)
+                print('(Pred,Ans): (%s, %s)' % (pred, t))
 
-        return predicted, accuracy
+        return accuracy / len(T)
+
+
+class Probability():
+    def __init__(self, keys=None):
+        self.dict = {}
+        self.keys = []
+
+        if keys is not None:
+            self.keys = keys
+            self.initialize(keys)
+
+    def initialize(self, keys):
+        for key in keys:
+            self.dict[key] = 0
+
+    def increment(self, key):
+        if self.dict.get(key) is None:
+            # if a key does not exist
+            # add the key to keys and dict
+            self.keys.append(key)
+            self.dict[key] = 0
+        else:
+            # if key exist, increment
+            self.dict[key] += 1
+
+    def normalize(self):
+        sum_of_values = sum(self.dict.values())
+        if sum_of_values is not 0:
+            for key in self.dict:
+                self.dict[key] = self.dict[key] / sum_of_values
+
+    def normalize_with_smoothing(self, X_count):
+        self.X_count = X_count
+        sum_of_values = sum(self.dict.values())
+        if sum_of_values is not 0:
+            for key in self.dict:
+                self.dict[key] = (self.dict[key] + 1) / (sum_of_values + X_count)
+
+    def get(self, key):
+        if self.dict.get(key) is None:
+            return 1 / self.X_count
+        else:
+            return self.dict[key]
+
+
+class ConditionalProbability():
+    def __init__(self, T):
+        self.dict = {}
+        self.T = T
+        self.initialize(T)
+
+    def initialize(self, T):
+        for t in T:
+            self.dict[t] = Probability()
+
+    def increment(self, x, t):
+        self.dict[t].increment(x)
+
+    def normalize(self, X_count):
+        self.X_count = X_count
+        for t in self.T:
+            self.dict[t].normalize_with_smoothing(X_count)
+
+    def get(self, x, t):
+        if self.dict.get(t) is None:
+            return 1 / len(self.T)
+        else:
+            return self.dict[t].get(x)
