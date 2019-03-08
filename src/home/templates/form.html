@@ -12,8 +12,11 @@
     </label>
 </form>
 
+{% if article_text %}
+<h2>{{article_text}}</h2><br>
+{% endif %}
 {% if category %}
-<p>{{category}}</p><br>
+<h2>Predicted class: {{category}}</h2><br>
 {% endif %}
 {% if img_url %}
 <img src={{img_url}} alt="Cannot load imge"/>

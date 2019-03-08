@@ -43,5 +43,6 @@ def home(request):
         img_url = 'https:' + img_url
 
     return render(request, 'form.html', {
+        'article_text': article_text,
         'category': category,
         'img_url': img_url})
