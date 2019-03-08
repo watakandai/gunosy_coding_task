@@ -82,7 +82,7 @@ def collect_and_save_data(db_name='articles.db', table_name='home_article'):
                 except AttributeError as e:
                     print(e)
                     continue
-                
+
                 try:
                     category_page_html = urlopen(article_url)
                 except HTTPError as e:
@@ -93,8 +93,8 @@ def collect_and_save_data(db_name='articles.db', table_name='home_article'):
                     article_page_object = BeautifulSoup(category_page_html.read(), "html.parser")
                 except URLError as e:
                     print(e)
-                    continue 
-                
+                    continue
+
                 article_ps = article_page_object.find("div", {
                     "class": "article gtm-click"}).find_all('p')
                 article_text = ''
@@ -126,10 +126,10 @@ def test_classifier():
     # load train data
     T, _, X = load_data(db_name, table_name, shuffled=True, filename='data.pkl', use_pkl=True, verbose=False)
     data_len = len(T)
-    train_len = int(TRAIN_TO_TEST_RATIO*data_len)
+    train_len = int(TRAIN_TO_TEST_RATIO * data_len)
 
     # Bag of Words -> Word Frequency
-    X_concat = [' '.join(x) for x in X] # convert from ['a', 'b'] to ['a b']
+    X_concat = [' '.join(x) for x in X]  # convert from ['a', 'b'] to ['a b']
     vectorizer = CountVectorizer(token_pattern=u'(?u)\\b\\w+\\b')
     features = vectorizer.fit_transform(X_concat)
 

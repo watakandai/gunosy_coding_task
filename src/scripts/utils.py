@@ -2,7 +2,7 @@ import re
 from janome.tokenizer import Tokenizer
 
 
-class MorphologicalAnalyzer():  
+class MorphologicalAnalyzer():
     """
     analyze a sentence and divides into list of words
 
@@ -31,12 +31,14 @@ class ProgressPrinter():
         self.i = 1
 
     def print(self, msg=None):
-        ratio = float(self.i/self.iter_max)
-        if ratio>=self.curr_thres:
+        ratio = float(self.i / self.iter_max)
+        if ratio >= self.curr_thres:
             print('Progress: %0.2f' % (self.curr_thres))
-            if msg is not None: print(msg)
+            if msg is not None:
+                print(msg)
             self.curr_thres += self.interval
         self.i += 1
+
 
 def replace_any_number_in_str_with_0(text):
     # 連続した数字を0で置換

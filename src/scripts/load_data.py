@@ -84,11 +84,10 @@ def load_data(db_name, table_name, word_class=["名詞", "動詞"], shuffled=Tru
         # save parameters
         with open(filename, 'wb') as f:
             f.write(dill.dumps([categories, titles, texts]))
-        
+
     if shuffled is True:
         D = list(zip(categories, titles, texts))
         random.shuffle(D)
         categories, titles, texts = zip(*D)
 
     return categories, titles, texts
-
