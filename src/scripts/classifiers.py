@@ -1,5 +1,6 @@
 import math
 import dill
+from scripts.utils import ProgressPrinter
 
 
 class NaiveBayes():
@@ -24,11 +25,13 @@ class NaiveBayes():
 
     def fit(self, X, T):
         # count word frequency for each word in each category
+        progress = ProgressPrinter(len(T), interval=0.25)
         for t, xs in zip(T, X):
             for x in xs:
                 self.words.add(x)
                 self.P_C.increment(t)
                 self.P_DC.increment(x, t)
+            progress.print()
 
         # normalize values to get percentage
         self.P_C.normalize()
@@ -37,8 +40,6 @@ class NaiveBayes():
         # save parameters
         with open(self.filename, 'wb') as f:
             f.write(dill.dumps([self.P_C, self.P_DC]))
-
-        return [self.P_C, self.P_DC]
 
     def load_params(self):
         # load parameters from pkl file
@@ -56,17 +57,18 @@ class NaiveBayes():
             scores.append(score)
 
         # choose the highest score category as a predicted category
+        print(scores)
         indx = scores.index(max(scores))
         category = self.T[indx]
 
-        return category
+        return category, math.exp(scores[indx])
 
     def score(self, X, T, verbose=False):
         # check if predicted class is correct
         predicted = []
         accuracy = 0
         for t, xs in zip(T, X):
-            pred = self.predict(xs)
+            pred, _ = self.predict(xs)
             if pred == t:
                 accuracy += 1
             predicted.append(pred)

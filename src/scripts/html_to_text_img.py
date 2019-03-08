@@ -21,8 +21,12 @@ def html_to_text_img(url):
         print(e)
         return None
 
-    text = soup.find("h1").get_text()
+    title = soup.find("h1").get_text()
+    text = ''
+    ps = soup.find("div", {"class": "article gtm-click"}).find_all('p')
+    for p in ps:
+        text += ''.join(p.get_text())
     imgs = soup.select("div.article__image img")
     first_img_url = imgs[0]['data-src']
 
-    return text, first_img_url
+    return title, text, first_img_url
