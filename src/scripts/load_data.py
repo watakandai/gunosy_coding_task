@@ -2,11 +2,12 @@
 This script loads train and test data
 """
 import os
-from time import sleep
 import dill
 import random
 import sqlite3
-from janome.tokenizer import Tokenizer
+from time import sleep
+from utils import ProgressPrinter, MorphologicalAnalyzer
+from utils import replace_any_number_in_str_with_0
 
 
 class DBManager():
@@ -43,7 +44,7 @@ class DBManager():
         return self.select('*')
 
 
-def load_data(db_name, table_name, word_class=["名詞", "動詞"], filename='train_data.pkl', use_pkl=True):
+def load_data(db_name, table_name, word_class=["名詞", "動詞"], shuffled=True, filename='data.pkl', use_pkl=True, verbose=False):
     """
     loads data and parse sentence into words
     data:  [(cat1, sentenc1)]
@@ -53,7 +54,7 @@ def load_data(db_name, table_name, word_class=["名詞", "動詞"], filename='tr
     if use_pkl is True:
         # load parameters from pkl file
         with open(filename, 'rb') as f:
-            categories, Words = dill.loads(f.read())
+            categories, titles, texts = dill.loads(f.read())
     else:
         # connect to database
         db_manager = DBManager(db_name=db_name, table_name=table_name)
@@ -64,36 +65,30 @@ def load_data(db_name, table_name, word_class=["名詞", "動詞"], filename='tr
         ma = MorphologicalAnalyzer(word_class=word_class)
         # divide into words using morphological analysis
         categories = []
-        Words = []
+        titles = []
+        texts = []
+        i = 1
+        progress = ProgressPrinter(len(raw_data))
         for data in raw_data:
-                category = data[1]
-                words = ma.split(data[2])
-                categories.append(category)
-                Words.append(words)
+            category = data[1]
+            title = ma.split(replace_any_number_in_str_with_0(data[2]))
+            text = ma.split(replace_any_number_in_str_with_0(data[3]))
+            categories.append(category)
+            titles.append(title)
+            texts.append(text)
+            progress.print('Num:%i, Cat:%s, Title:%s' % (i, category, title))
+            if verbose is True:
+                print('Num:%i, Cat:%s, Title:%s' % (i, category, title))
+                print('Texts: %s' % (text))
 
         # save parameters
         with open(filename, 'wb') as f:
-            f.write(dill.dumps([categories, Words]))
+            f.write(dill.dumps([categories, titles, texts]))
+        
+    if shuffled is True:
+        D = list(zip(categories, titles, texts))
+        random.shuffle(D)
+        categories, titles, texts = zip(*D)
 
-    return categories, Words
+    return categories, titles, texts
 
-
-class MorphologicalAnalyzer():
-    """
-    analyze a sentence and divides into list of words
-
-    Parameters
-    --------------
-    word_class: list of str
-        word class you want
-    """
-    def __init__(self, word_class=["形容詞", "形容動詞", "感動詞", "副詞", "連体詞", "名詞", "動詞"]):
-        self.word_class = word_class
-
-    def split(self, sentence, word_class=None):
-        if word_class is None:
-            word_class = self.word_class
-
-        t = Tokenizer()
-        return [token.surface for token in t.tokenize(sentence)
-                if token.part_of_speech.split(',')[0] in self.word_class]

@@ -31,7 +31,7 @@ categories = {
 }
 
 
-def collect_and_save_data(db_name='test.db', table_name='home_article'):
+def collect_and_save_data(db_name='articles.db', table_name='home_article'):
     """Collects title & category data from the Gunosy websites"""
     # connect to database
     conn = sqlite3.connect(db_name)
@@ -75,18 +75,38 @@ def collect_and_save_data(db_name='test.db', table_name='home_article'):
 
             for i_article in range(ARTICLE_START, ARTICLE_END):
                 try:
-                    page_title = category_page_object.find_all("div", {
-                        "class": "list_title"})[i_article].a.get_text()
+                    article_heading = category_page_object.find_all("div", {
+                        "class": "list_title"})[i_article]
+                    article_title = article_heading.a.get_text()
+                    article_url = article_heading.a.get("href")
                 except AttributeError as e:
                     print(e)
                     continue
+                
+                try:
+                    category_page_html = urlopen(article_url)
+                except HTTPError as e:
+                    print(e)
+                    continue
 
-                insert_sql = 'INSERT INTO {0} VALUES(?, ?, ?)'.format(table_name)
-                data = (current_article, category_name, page_title)
+                try:
+                    article_page_object = BeautifulSoup(category_page_html.read(), "html.parser")
+                except URLError as e:
+                    print(e)
+                    continue 
+                
+                article_ps = article_page_object.find("div", {
+                    "class": "article gtm-click"}).find_all('p')
+                article_text = ''
+                for p in article_ps:
+                    article_text += ''.join(p.get_text())
+
+                insert_sql = 'INSERT INTO {0} VALUES(?, ?, ?, ?)'.format(table_name)
+                data = (current_article, category_name, article_title, article_text)
                 curs.execute(insert_sql, data)
                 conn.commit()
-                print("No:%s, Cat:%s, Title:%s)" %
-                      (current_article, category_name, page_title))
+                print("No:%s, Cat:%s, Title:%s, Text:%s)" %
+                      (current_article, category_name, article_title, article_text))
                 current_article = current_article + 1
                 time.sleep(1)
     conn.close()
@@ -99,36 +119,33 @@ def test_classifier():
     """
     # Parameter
     table_name = 'home_article'
-    train_db = 'train.db'
-    test_db = 'test.db'
+    db_name = 'articles.db'
     category_lists = list(categories.values())
+    TRAIN_TO_TEST_RATIO = 0.7
 
     # load train data
-    train_T, train_X = load_data(train_db, table_name, filename='train_data.pkl', use_pkl=False)
-    test_T, test_X = load_data(test_db, table_name, filename='test_data.pkl', use_pkl=False)
-    # convert from ['a', 'b'] to ['a b'] to use with CountVectorizer
-    train_X = [' '.join(X) for X in train_X]
-    test_X = [' '.join(X) for X in test_X]
-    # [bag of words] -> [count each word frequency] and turns into a numeric vector
-    # CountVectorizer is not used with a NaiveBayes classifier,
-    # as scikit-learn is not allowed to use with the first assignment
+    T, _, X = load_data(db_name, table_name, shuffled=True, filename='data.pkl', use_pkl=True, verbose=False)
+    data_len = len(T)
+    train_len = int(TRAIN_TO_TEST_RATIO*data_len)
+
+    # Bag of Words -> Word Frequency
+    X_concat = [' '.join(x) for x in X] # convert from ['a', 'b'] to ['a b']
     vectorizer = CountVectorizer(token_pattern=u'(?u)\\b\\w+\\b')
-    features = vectorizer.fit_transform(train_X + test_X)
+    features = vectorizer.fit_transform(X_concat)
 
     # load classifiers
     nb = NaiveBayes(T=category_lists)
     rfc = RFC(n_estimators=100, n_jobs=-1)
 
     # train with traning data
-    params = nb.fit(train_X, train_T)
-    rfc.fit(features[:len(train_T)], train_T)
-    with open('test_params.pkl', 'wb') as f:
-        f.write(dill.dumps(params))
+    nb.fit(X[:train_len], T[:train_len])
+    rfc.fit(features[:train_len], T[:train_len])
 
     # test with test data
-    accuracy_nb = nb.score(test_X, test_T, verbose=False)
-    accuracy_rfc = rfc.score(features[len(train_T):], test_T)
-    print(accuracy_nb, accuracy_rfc)
+    accuracy_nb = nb.score(X[train_len:], T[train_len:], verbose=False)
+    accuracy_rfc = rfc.score(features[train_len:], T[train_len:])
+    print('Accuracy: Naive Bayes ... %2.5f' % (accuracy_nb))
+    print('Accuracy: Random Forest ... %2.5f' % (accuracy_rfc))
 
 
 if __name__ == '__main__':

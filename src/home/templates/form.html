@@ -12,14 +12,16 @@
     </label>
 </form>
 
-{% if article_text %}
-<h2>{{article_text}}</h2><br>
-{% endif %}
 {% if category %}
-<h2>Predicted class: {{category}}</h2><br>
+    <h2>Predicted class: {{category}} </h2><br>
+{% else %}
+    <h2> Please enter URL. </h2><br>
 {% endif %}
-{% if img_url %}
-<img src={{img_url}} alt="Cannot load imge"/>
-<p>{{img_url}}</p>
+
+{% if article_title %}
+    <h2>{{article_title}}</h2><br>
+    <p>{{article_text}}</p>
+    <img src={{img_url}} alt="Cannot load imge"/>
 {% endif %}
+
 {% endblock %}

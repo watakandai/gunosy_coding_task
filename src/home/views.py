@@ -2,7 +2,7 @@ import dill
 from django.shortcuts import render
 from django.http import HttpResponse
 from scripts.html_to_text_img import html_to_text_img
-from scripts.load_data import MorphologicalAnalyzer as MA
+from scripts.utils import MorphologicalAnalyzer as MA
 import sys
 from scripts import classifiers
 sys.modules['classifiers'] = classifiers
@@ -28,21 +28,18 @@ def home(request):
     url = request.GET.get('url')
     print(url)
     if url is not None:
-        article_text, img_url = html_to_text_img(url)
+        article_title, article_text, img_url = html_to_text_img(url)
+        img_url = 'https:' + img_url
         words = ma.split(article_text)
+        category, _ = nb.predict(words)
     else:
+        article_title = None
         article_text = None
         img_url = None
-    # category = cf.classify(article_text)
-
-    if article_text is None:
-        category = "Please enter URL."
-    else:
-        category = nb.predict(words)
-    if img_url is not None:
-        img_url = 'https:' + img_url
+        category = None
 
     return render(request, 'form.html', {
+        'article_title': article_title,
         'article_text': article_text,
         'category': category,
         'img_url': img_url})
