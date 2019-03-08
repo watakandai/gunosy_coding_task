@@ -3,6 +3,7 @@
 # To get the image
 ![home_view](images/home_view.png)
 ![transition_view](images/transition_view.png)
+![transition_view2](images/transition_view2.png)
 
 # Steps to launch the site
 ```
