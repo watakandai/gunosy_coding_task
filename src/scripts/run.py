@@ -32,7 +32,16 @@ categories = {
 
 
 def collect_and_save_data(db_name='articles.db', table_name='home_article'):
-    """Collects title & category data from the Gunosy websites"""
+    """
+    Collects title & category data from the Gunosy websites
+
+    Parameters
+    --------------
+    db_name: str
+        name of a db
+    table_name: str
+        name of a table
+    """
     # connect to database
     conn = sqlite3.connect(db_name)
     curs = conn.cursor()

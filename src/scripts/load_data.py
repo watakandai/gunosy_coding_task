@@ -47,8 +47,23 @@ class DBManager():
 def load_data(db_name, table_name, word_class=["名詞", "動詞"], shuffled=True, filename='data.pkl', use_pkl=True, verbose=False):
     """
     loads data and parse sentence into words
-    data:  [(cat1, sentenc1)]
-    storage:  [(cat1,word1), ..., (catn,wordn)]
+
+    Parameter
+    ---------------
+    db_name: str
+        name of a database to read from/write to
+    table_name: str
+        name of a table
+    word_class: list of str
+        word classes to extract
+    shuffled: bool
+        whether to shuffle data
+    filename: str
+        file name of a pkl file to save parsed data
+    use_pkl: bool
+        whether to use pickled data
+    verbose: bool
+        whether to print debug messages
     """
     # Load parsed data if specified, else parse raw data
     if use_pkl is True:
