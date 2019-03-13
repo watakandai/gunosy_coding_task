@@ -8,15 +8,15 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>scripts.run &#8212; doc_classify 1.0.0 documentation</title>
+    <title>scripts.run &#8212; doc_classify 0.0.1 documentation</title>
     <link rel="stylesheet" href="../../_static/cloud.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Noticia+Text|Open+Sans|Droid+Sans+Mono" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Noticia+Text|Open+Sans|Droid+Sans+Mono" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
     <script type="text/javascript" src="../../_static/jquery.cookie.js"></script>
     <script type="text/javascript" src="../../_static/cloud.base.js"></script>
     <script type="text/javascript" src="../../_static/cloud.js"></script>
@@ -35,7 +35,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> &nbsp; &nbsp;</li>
-    <li><a href="../../index.html">doc_classify 1.0.0 documentation</a> &#187;</li>
+    <li><a href="../../index.html">doc_classify 0.0.1 documentation</a> &#187;</li>
 
           <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
       </ul>
@@ -52,74 +52,172 @@
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">This script collects data, train, and test classifiers.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">dill</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">sqlite3</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">bs4</span> <span class="k">import</span> <span class="n">BeautifulSoup</span>
+<span class="kn">from</span> <span class="nn">urllib.request</span> <span class="k">import</span> <span class="n">urlopen</span>
+<span class="kn">from</span> <span class="nn">urllib.error</span> <span class="k">import</span> <span class="n">HTTPError</span><span class="p">,</span> <span class="n">URLError</span>
+<span class="kn">from</span> <span class="nn">janome.tokenizer</span> <span class="k">import</span> <span class="n">Tokenizer</span>
+<span class="kn">from</span> <span class="nn">sklearn.feature_extraction.text</span> <span class="k">import</span> <span class="n">CountVectorizer</span>
+<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="k">import</span> <span class="n">RandomForestClassifier</span> <span class="k">as</span> <span class="n">RFC</span>
+<span class="kn">from</span> <span class="nn">scripts.classifiers</span> <span class="k">import</span> <span class="n">NaiveBayes</span>
+<span class="kn">from</span> <span class="nn">scripts.load_data</span> <span class="k">import</span> <span class="n">load_data</span>
+<span class="c1"># https://note.nkmk.me/python-janome-tutorial/</span>
 
 
-<div class="viewcode-block" id="collect_and_save_data"><a class="viewcode-back" href="../../run.html#scripts.run.collect_and_save_data">[docs]</a><span class="k">def</span> <span class="nf">collect_and_save_data</span><span class="p">(</span><span class="n">n_data</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
+<span class="c1"># list of categories</span>
+<span class="n">categories</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;https://gunosy.com/categories/1&#39;</span><span class="p">:</span> <span class="s1">&#39;ENTERTAINMENT&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;https://gunosy.com/categories/2&#39;</span><span class="p">:</span> <span class="s1">&#39;SPORT&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;https://gunosy.com/categories/3&#39;</span><span class="p">:</span> <span class="s1">&#39;GAGS&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;https://gunosy.com/categories/4&#39;</span><span class="p">:</span> <span class="s1">&#39;DOMESTIC&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;https://gunosy.com/categories/5&#39;</span><span class="p">:</span> <span class="s1">&#39;INTERNATIONAL&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;https://gunosy.com/categories/6&#39;</span><span class="p">:</span> <span class="s1">&#39;COLUMN&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;https://gunosy.com/categories/7&#39;</span><span class="p">:</span> <span class="s1">&#39;IT&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;https://gunosy.com/categories/8&#39;</span><span class="p">:</span> <span class="s1">&#39;GOURMET&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="collect_and_save_data"><a class="viewcode-back" href="../../run.html#scripts.run.collect_and_save_data">[docs]</a><span class="k">def</span> <span class="nf">collect_and_save_data</span><span class="p">(</span><span class="n">db_name</span><span class="o">=</span><span class="s1">&#39;articles.db&#39;</span><span class="p">,</span> <span class="n">table_name</span><span class="o">=</span><span class="s1">&#39;home_article&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Collects title &amp; category data from the Gunosy websites</span>
 
 <span class="sd">    Parameters</span>
-<span class="sd">    ----------------</span>
-<span class="sd">    n_data : int</span>
-<span class="sd">        Number of data </span>
+<span class="sd">    --------------</span>
+<span class="sd">    db_name: str</span>
+<span class="sd">        name of a db</span>
+<span class="sd">    table_name: str</span>
+<span class="sd">        name of a table</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span></div>
+    <span class="c1"># connect to database</span>
+    <span class="n">conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">db_name</span><span class="p">)</span>
+    <span class="n">curs</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+
+    <span class="c1"># How many Pages per category</span>
+    <span class="n">PAGE_START</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">PAGE_END</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="c1"># How many articles per page</span>
+    <span class="n">ARTICLE_START</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">ARTICLE_END</span> <span class="o">=</span> <span class="mi">20</span>
+    <span class="c1"># count all the article</span>
+    <span class="n">current_article</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">for</span> <span class="n">category_url</span><span class="p">,</span> <span class="n">category_name</span> <span class="ow">in</span> <span class="n">categories</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="c1"># Try retrieving html from url</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">urlopen</span><span class="p">(</span><span class="n">category_url</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># List of URLs of each page</span>
+        <span class="n">page_urls</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">?page=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">category_url</span><span class="p">,</span> <span class="n">i_page</span><span class="p">)</span> <span class="k">for</span> <span class="n">i_page</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">PAGE_START</span><span class="p">,</span> <span class="n">PAGE_END</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+
+        <span class="c1"># For each page, get articles</span>
+        <span class="k">for</span> <span class="n">page_url</span> <span class="ow">in</span> <span class="n">page_urls</span><span class="p">:</span>
+            <span class="c1"># Try retrieving html from url</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">category_page_html</span> <span class="o">=</span> <span class="n">urlopen</span><span class="p">(</span><span class="n">page_url</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># parse html through bs4</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">category_page_object</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">category_page_html</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="s2">&quot;html.parser&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">URLError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="k">for</span> <span class="n">i_article</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ARTICLE_START</span><span class="p">,</span> <span class="n">ARTICLE_END</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">article_heading</span> <span class="o">=</span> <span class="n">category_page_object</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s2">&quot;div&quot;</span><span class="p">,</span> <span class="p">{</span>
+                        <span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;list_title&quot;</span><span class="p">})[</span><span class="n">i_article</span><span class="p">]</span>
+                    <span class="n">article_title</span> <span class="o">=</span> <span class="n">article_heading</span><span class="o">.</span><span class="n">a</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span>
+                    <span class="n">article_url</span> <span class="o">=</span> <span class="n">article_heading</span><span class="o">.</span><span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;href&quot;</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                    <span class="k">continue</span>
+
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">category_page_html</span> <span class="o">=</span> <span class="n">urlopen</span><span class="p">(</span><span class="n">article_url</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                    <span class="k">continue</span>
+
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">article_page_object</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">category_page_html</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="s2">&quot;html.parser&quot;</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">URLError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                    <span class="k">continue</span>
+
+                <span class="n">article_ps</span> <span class="o">=</span> <span class="n">article_page_object</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;div&quot;</span><span class="p">,</span> <span class="p">{</span>
+                    <span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="s2">&quot;article gtm-click&quot;</span><span class="p">})</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">)</span>
+                <span class="n">article_text</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+                <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">article_ps</span><span class="p">:</span>
+                    <span class="n">article_text</span> <span class="o">+=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">get_text</span><span class="p">())</span>
+
+                <span class="n">insert_sql</span> <span class="o">=</span> <span class="s1">&#39;INSERT INTO </span><span class="si">{0}</span><span class="s1"> VALUES(?, ?, ?, ?)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">table_name</span><span class="p">)</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="p">(</span><span class="n">current_article</span><span class="p">,</span> <span class="n">category_name</span><span class="p">,</span> <span class="n">article_title</span><span class="p">,</span> <span class="n">article_text</span><span class="p">)</span>
+                <span class="n">curs</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">insert_sql</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+                <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No:</span><span class="si">%s</span><span class="s2">, Cat:</span><span class="si">%s</span><span class="s2">, Title:</span><span class="si">%s</span><span class="s2">, Text:</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span>
+                      <span class="p">(</span><span class="n">current_article</span><span class="p">,</span> <span class="n">category_name</span><span class="p">,</span> <span class="n">article_title</span><span class="p">,</span> <span class="n">article_text</span><span class="p">))</span>
+                <span class="n">current_article</span> <span class="o">=</span> <span class="n">current_article</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="train_classifier"><a class="viewcode-back" href="../../run.html#scripts.run.train_classifier">[docs]</a><span class="k">def</span> <span class="nf">train_classifier</span><span class="p">(</span><span class="n">classifier_name</span><span class="o">=</span><span class="s1">&#39;naive_bayes&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="test_classifier"><a class="viewcode-back" href="../../run.html#scripts.run.test_classifier">[docs]</a><span class="k">def</span> <span class="nf">test_classifier</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Trains classifiers with collected dataset</span>
-<span class="sd">    that is saved in db</span>
-<span class="sd">    After the traning, it saves its parameters</span>
-<span class="sd">    as pickle data.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------------</span>
-<span class="sd">    classifier_name : str</span>
-<span class="sd">        Name of the classifier</span>
-<span class="sd">        Choose &#39;all&#39; if all classifieres to be trained</span>
+<span class="sd">    Trains classifiers with collected dataset that is saved in db</span>
+<span class="sd">    and test with test data which is separated with train data</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># load data</span>
+    <span class="c1"># Parameter</span>
+    <span class="n">table_name</span> <span class="o">=</span> <span class="s1">&#39;home_article&#39;</span>
+    <span class="n">db_name</span> <span class="o">=</span> <span class="s1">&#39;articles.db&#39;</span>
+    <span class="n">category_lists</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">categories</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="n">TRAIN_TO_TEST_RATIO</span> <span class="o">=</span> <span class="mf">0.7</span>
 
-    <span class="c1"># divide into traning / test datasets</span>
+    <span class="c1"># load train data</span>
+    <span class="n">T</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">X</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="n">table_name</span><span class="p">,</span> <span class="n">shuffled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;data.pkl&#39;</span><span class="p">,</span> <span class="n">use_pkl</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">data_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+    <span class="n">train_len</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">TRAIN_TO_TEST_RATIO</span> <span class="o">*</span> <span class="n">data_len</span><span class="p">)</span>
 
-    <span class="c1"># load classifier</span>
+    <span class="c1"># Bag of Words -&gt; Word Frequency</span>
+    <span class="n">X_concat</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">X</span><span class="p">]</span>  <span class="c1"># convert from [&#39;a&#39;, &#39;b&#39;] to [&#39;a b&#39;]</span>
+    <span class="n">vectorizer</span> <span class="o">=</span> <span class="n">CountVectorizer</span><span class="p">(</span><span class="n">token_pattern</span><span class="o">=</span><span class="sa">u</span><span class="s1">&#39;(?u)</span><span class="se">\\</span><span class="s1">b</span><span class="se">\\</span><span class="s1">w+</span><span class="se">\\</span><span class="s1">b&#39;</span><span class="p">)</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="n">vectorizer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X_concat</span><span class="p">)</span>
+
+    <span class="c1"># load classifiers</span>
+    <span class="n">nb</span> <span class="o">=</span> <span class="n">NaiveBayes</span><span class="p">(</span><span class="n">T</span><span class="o">=</span><span class="n">category_lists</span><span class="p">)</span>
+    <span class="n">rfc</span> <span class="o">=</span> <span class="n">RFC</span><span class="p">(</span><span class="n">n_estimators</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="c1"># train with traning data</span>
-    
-    <span class="c1"># save  tranined parameters to pickle </span>
-    <span class="k">pass</span></div>
-
-
-<div class="viewcode-block" id="test_classifiers"><a class="viewcode-back" href="../../run.html#scripts.run.test_classifiers">[docs]</a><span class="k">def</span> <span class="nf">test_classifiers</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Tests classifiers and plots comparisons</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------------</span>
-<span class="sd">    classifier_name : str</span>
-<span class="sd">        Name of the classifier</span>
-<span class="sd">        Choose &#39;all&#39; if all classifieres to be trained</span>
-<span class="sd">        </span>
-<span class="sd">    Returns </span>
-<span class="sd">    ----------------</span>
-<span class="sd">    accuracies : list of floats</span>
-<span class="sd">        Accuracy of each classifier</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># load data</span>
-
-    <span class="c1"># divide into traning / test datasets</span>
-
-    <span class="c1"># load classifiers with parameters</span>
+    <span class="n">nb</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">[:</span><span class="n">train_len</span><span class="p">],</span> <span class="n">T</span><span class="p">[:</span><span class="n">train_len</span><span class="p">])</span>
+    <span class="n">rfc</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">features</span><span class="p">[:</span><span class="n">train_len</span><span class="p">],</span> <span class="n">T</span><span class="p">[:</span><span class="n">train_len</span><span class="p">])</span>
 
     <span class="c1"># test with test data</span>
-    
-    <span class="c1"># plot comparisons</span>
+    <span class="n">accuracy_nb</span> <span class="o">=</span> <span class="n">nb</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">train_len</span><span class="p">:],</span> <span class="n">T</span><span class="p">[</span><span class="n">train_len</span><span class="p">:],</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">accuracy_rfc</span> <span class="o">=</span> <span class="n">rfc</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">features</span><span class="p">[</span><span class="n">train_len</span><span class="p">:],</span> <span class="n">T</span><span class="p">[</span><span class="n">train_len</span><span class="p">:])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Accuracy: Naive Bayes ... </span><span class="si">%2.5f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">accuracy_nb</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Accuracy: Random Forest ... </span><span class="si">%2.5f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">accuracy_rfc</span><span class="p">))</span></div>
 
-    <span class="c1"># save plots</span>
 
-    <span class="c1"># return accuracies as a list</span>
-    <span class="k">pass</span></div>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Options as follows&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--collect&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--test&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">collect</span><span class="p">:</span>
+        <span class="n">collect_and_save_data</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">test</span><span class="p">:</span>
+        <span class="n">test_classifier</span><span class="p">()</span>
 </pre></div>
 
           </div>
@@ -171,7 +269,7 @@
         <li class="right" >
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> &nbsp; &nbsp;</li>
-    <li><a href="../../index.html">doc_classify 1.0.0 documentation</a> &#187;</li>
+    <li><a href="../../index.html">doc_classify 0.0.1 documentation</a> &#187;</li>
 
           <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
       </ul>
@@ -180,7 +278,7 @@
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2019, kandai.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.8.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
     </div>
     <!-- cloud_sptheme 1.4 -->
   </body>

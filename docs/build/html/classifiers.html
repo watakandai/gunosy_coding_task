@@ -49,26 +49,60 @@
             
   <div class="section" id="running-script-for-collecting-training-testing">
 <h1>Running script for collecting, training, testing<a class="headerlink" href="#running-script-for-collecting-training-testing" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="module-scripts.run">
-<span id="run"></span><h2>run<a class="headerlink" href="#module-scripts.run" title="Permalink to this headline">¶</a></h2>
-<p>This script collects data, train, and test classifiers.</p>
-<dl class="function">
-<dt id="scripts.run.collect_and_save_data">
-<code class="descclassname">scripts.run.</code><code class="descname">collect_and_save_data</code><span class="sig-paren">(</span><em>db_name='articles.db'</em>, <em>table_name='home_article'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/run.html#collect_and_save_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.run.collect_and_save_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Collects title &amp; category data from the Gunosy websites</p>
+<div class="section" id="module-scripts.classifiers">
+<span id="run"></span><h2>run<a class="headerlink" href="#module-scripts.classifiers" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="scripts.classifiers.NaiveBayes">
+<em class="property">class </em><code class="descclassname">scripts.classifiers.</code><code class="descname">NaiveBayes</code><span class="sig-paren">(</span><em>T</em>, <em>filename='naive_bayes_params.pkl'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/classifiers.html#NaiveBayes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.classifiers.NaiveBayes" title="Permalink to this definition">¶</a></dt>
+<dd><p>A classifier that predicts a category from a list of words
+P(C) = category_1 / all categories
+P(D|C) = { word_1 / all words in a category }</p>
 <dl class="docutils">
-<dt>db_name: str</dt>
-<dd>name of a db</dd>
-<dt>table_name: str</dt>
-<dd>name of a table</dd>
+<dt>T: a list of num or str</dt>
+<dd>list of teacher data</dd>
+<dt>filename: str</dt>
+<dd>name of a file to store parameters</dd>
+<dt>words: set</dt>
+<dd>set of words that appeared in the data</dd>
+<dt>P_C: Probability</dt>
+<dd>prior probability that C occurs</dd>
+<dt>P_DC: ConditionalProbability</dt>
+<dd>conditional probability of D if C is given</dd>
+</dl>
+<dl class="method">
+<dt id="scripts.classifiers.NaiveBayes.fit">
+<code class="descname">fit</code><span class="sig-paren">(</span><em>X</em>, <em>T</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/classifiers.html#NaiveBayes.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.classifiers.NaiveBayes.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>train a model with data X, T</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scripts.classifiers.NaiveBayes.load_params">
+<code class="descname">load_params</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/classifiers.html#NaiveBayes.load_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.classifiers.NaiveBayes.load_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>load parameters from pkl file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scripts.classifiers.NaiveBayes.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>xs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/classifiers.html#NaiveBayes.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.classifiers.NaiveBayes.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>predicts which category the data belongs</p>
+<dl class="docutils">
+<dt>xs: list</dt>
+<dd>a single row of a data</dd>
+</dl>
+<dl class="docutils">
+<dt>category: str</dt>
+<dd>predicted category</dd>
+<dt>score_exp: float</dt>
+<dd>score with exponential</dd>
 </dl>
 </dd></dl>
 
-<dl class="function">
-<dt id="scripts.run.test_classifier">
-<code class="descclassname">scripts.run.</code><code class="descname">test_classifier</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/run.html#test_classifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.run.test_classifier" title="Permalink to this definition">¶</a></dt>
-<dd><p>Trains classifiers with collected dataset that is saved in db
-and test with test data which is separated with train data</p>
+<dl class="method">
+<dt id="scripts.classifiers.NaiveBayes.score">
+<code class="descname">score</code><span class="sig-paren">(</span><em>X</em>, <em>T</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/classifiers.html#NaiveBayes.score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.classifiers.NaiveBayes.score" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculates an accuracy</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -83,7 +117,7 @@ and test with test data which is separated with train data</p>
     <h3><a href="index.html">Page contents</a></h3>
     <ul>
 <li><a class="reference internal" href="#">Running script for collecting, training, testing</a><ul>
-<li><a class="reference internal" href="#module-scripts.run">run</a></li>
+<li><a class="reference internal" href="#module-scripts.classifiers">run</a></li>
 </ul>
 </li>
 </ul>
@@ -92,7 +126,7 @@ and test with test data which is separated with train data</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/run.rst.txt"
+      <li><a href="_sources/classifiers.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>

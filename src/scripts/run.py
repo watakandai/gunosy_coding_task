@@ -13,8 +13,8 @@ from urllib.error import HTTPError, URLError
 from janome.tokenizer import Tokenizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.ensemble import RandomForestClassifier as RFC
-from classifiers import NaiveBayes
-from load_data import load_data
+from scripts.classifiers import NaiveBayes
+from scripts.load_data import load_data
 # https://note.nkmk.me/python-janome-tutorial/
 
 

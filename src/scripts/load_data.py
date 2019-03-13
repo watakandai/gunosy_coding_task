@@ -6,8 +6,8 @@ import dill
 import random
 import sqlite3
 from time import sleep
-from utils import ProgressPrinter, MorphologicalAnalyzer
-from utils import replace_any_number_in_str_with_0
+from scripts.utils import ProgressPrinter, MorphologicalAnalyzer
+from scripts.utils import replace_any_number_in_str_with_0
 
 
 class DBManager():

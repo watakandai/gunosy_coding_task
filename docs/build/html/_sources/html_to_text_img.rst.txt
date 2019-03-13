@@ -7,5 +7,5 @@ Running script for collecting, training, testing
 run
 =======================
 
-.. automodule:: scripts.run
+.. automodule:: scripts.html_to_text_img
     :members:

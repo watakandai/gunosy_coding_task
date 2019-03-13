@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Welcome to doc_classify’s documentation! &#8212; doc_classify 0.0.1 documentation</title>
+    <title>Running script for collecting, training, testing &#8212; doc_classify 0.0.1 documentation</title>
     <link rel="stylesheet" href="_static/cloud.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Noticia+Text|Open+Sans|Droid+Sans+Mono" />
@@ -35,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> &nbsp; &nbsp;</li>
-    <li><a href="#">doc_classify 0.0.1 documentation</a> &#187;</li>
+    <li><a href="index.html">doc_classify 0.0.1 documentation</a> &#187;</li>
  
       </ul>
     </div>
@@ -47,18 +47,62 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="welcome-to-doc-classify-s-documentation">
-<h1>Welcome to doc_classify’s documentation!<a class="headerlink" href="#welcome-to-doc-classify-s-documentation" title="Permalink to this headline">¶</a></h1>
-<div class="toctree-wrapper compound">
+  <div class="section" id="running-script-for-collecting-training-testing">
+<h1>Running script for collecting, training, testing<a class="headerlink" href="#running-script-for-collecting-training-testing" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-scripts.load_data">
+<span id="run"></span><h2>run<a class="headerlink" href="#module-scripts.load_data" title="Permalink to this headline">¶</a></h2>
+<p>This script loads train and test data</p>
+<dl class="class">
+<dt id="scripts.load_data.DBManager">
+<em class="property">class </em><code class="descclassname">scripts.load_data.</code><code class="descname">DBManager</code><span class="sig-paren">(</span><em>db_name</em>, <em>table_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/load_data.html#DBManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.load_data.DBManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>connect to a database and manage the data</p>
+<dl class="docutils">
+<dt>db_name: str</dt>
+<dd>name of a database</dd>
+<dt>table_name: str</dt>
+<dd>name of a table</dd>
+</dl>
+<dl class="method">
+<dt id="scripts.load_data.DBManager.select">
+<code class="descname">select</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/load_data.html#DBManager.select"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.load_data.DBManager.select" title="Permalink to this definition">¶</a></dt>
+<dd><p>select data whose key is “s” from the table</p>
+<dl class="docutils">
+<dt>s: str</dt>
+<dd>name of a key (column)</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="scripts.load_data.DBManager.select_all">
+<code class="descname">select_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/load_data.html#DBManager.select_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.load_data.DBManager.select_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>selects all the columns from the table</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.load_data.load_data">
+<code class="descclassname">scripts.load_data.</code><code class="descname">load_data</code><span class="sig-paren">(</span><em>db_name, table_name, word_class=['名詞', '動詞'], shuffled=True, filename='data.pkl', use_pkl=True, verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/load_data.html#load_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.load_data.load_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>loads data and parse sentence into words</p>
+<dl class="docutils">
+<dt>db_name: str</dt>
+<dd>name of a database to read from/write to</dd>
+<dt>table_name: str</dt>
+<dd>name of a table</dd>
+<dt>word_class: list of str</dt>
+<dd>word classes to extract</dd>
+<dt>shuffled: bool</dt>
+<dd>whether to shuffle data</dd>
+<dt>filename: str</dt>
+<dd>file name of a pkl file to save parsed data</dd>
+<dt>use_pkl: bool</dt>
+<dd>whether to use pickled data</dd>
+<dt>verbose: bool</dt>
+<dd>whether to print debug messages</dd>
+</dl>
+</dd></dl>
+
 </div>
-</div>
-<div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
-<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
-<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
-</ul>
 </div>
 
 
@@ -67,17 +111,19 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper"><div class="sphinx-toc sphinxlocaltoc">
-    <h3><a href="#">Page contents</a></h3>
+    <h3><a href="index.html">Page contents</a></h3>
     <ul>
-<li><a class="reference internal" href="#">Welcome to doc_classify’s documentation!</a></li>
-<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+<li><a class="reference internal" href="#">Running script for collecting, training, testing</a><ul>
+<li><a class="reference internal" href="#module-scripts.load_data">run</a></li>
+</ul>
+</li>
 </ul>
 
   </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/index.rst.txt"
+      <li><a href="_sources/load_data.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -125,7 +171,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> &nbsp; &nbsp;</li>
-    <li><a href="#">doc_classify 0.0.1 documentation</a> &#187;</li>
+    <li><a href="index.html">doc_classify 0.0.1 documentation</a> &#187;</li>
  
       </ul>
     </div>
