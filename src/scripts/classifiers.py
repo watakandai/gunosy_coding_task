@@ -9,12 +9,18 @@ class NaiveBayes():
     P(C) = category_1 / all categories
     P(D|C) = { word_1 / all words in a category }
 
-    Parameters
+    Attributes
     ------------------
-    T: a list
-        a list of teacher data
+    T: a list of num or str
+        list of teacher data
     filename: str
-        a name of a file to store parameters
+        name of a file to store parameters
+    words: set
+        set of words that appeared in the data
+    P_C: Probability
+        prior probability that C occurs
+    P_DC: ConditionalProbability
+        conditional probability of D if C is given
     """
     def __init__(self, T, filename='naive_bayes_params.pkl'):
         self.T = T
@@ -24,7 +30,9 @@ class NaiveBayes():
         self.P_DC = ConditionalProbability(T)
 
     def fit(self, X, T):
-        # count word frequency for each word in each category
+        """
+        train a model with data X, T
+        """
         progress = ProgressPrinter(len(T), interval=0.25)
         for t, xs in zip(T, X):
             for x in xs:
@@ -42,12 +50,27 @@ class NaiveBayes():
             f.write(dill.dumps([self.P_C, self.P_DC]))
 
     def load_params(self):
-        # load parameters from pkl file
+        """load parameters from pkl file"""
         with open(self.filename, 'rb') as f:
             self.P_C, self.P_DC = dill.loads(f.read())
 
     def predict(self, xs):
-        # calculate score of a given data x
+        """
+        predicts which category the data belongs
+
+        Parameters
+        --------------
+        xs: list
+            a single row of a data
+
+        Returns
+        -----------
+        category: str
+            predicted category
+        score_exp: float
+            score with exponential
+        """
+        # calculate score of a given data
         scores = []
         for t in self.T:
             score = math.log(self.P_C.get(t))
@@ -60,10 +83,12 @@ class NaiveBayes():
         print(scores)
         indx = scores.index(max(scores))
         category = self.T[indx]
+        score_exp = math.exp(scores[indx])
 
-        return category, math.exp(scores[indx])
+        return category, score_exp
 
     def score(self, X, T, verbose=False):
+        """calculates an accuracy"""
         # check if predicted class is correct
         predicted = []
         accuracy = 0

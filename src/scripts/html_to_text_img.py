@@ -4,6 +4,24 @@ from bs4 import BeautifulSoup
 
 
 def html_to_text_img(url):
+    """
+    reads html and parse into text and img data
+
+    Parameter
+    ------------
+    url: str
+        a url
+
+    Returns
+    -------------
+    title: str
+        title of an article
+    text: str
+        article contents
+    img_url: str
+        url of an image
+
+    """
     if url is '' or url is None:
         return None
     try:
@@ -27,6 +45,6 @@ def html_to_text_img(url):
     for p in ps:
         text += ''.join(p.get_text())
     imgs = soup.select("div.article__image img")
-    first_img_url = imgs[0]['data-src']
+    img_url = imgs[0]['data-src']
 
-    return title, text, first_img_url
+    return title, text, img_url

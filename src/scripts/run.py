@@ -13,8 +13,8 @@ from urllib.error import HTTPError, URLError
 from janome.tokenizer import Tokenizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.ensemble import RandomForestClassifier as RFC
-from classifiers import NaiveBayes
-from load_data import load_data
+from scripts.classifiers import NaiveBayes
+from scripts.load_data import load_data
 # https://note.nkmk.me/python-janome-tutorial/
 
 
@@ -32,7 +32,16 @@ categories = {
 
 
 def collect_and_save_data(db_name='articles.db', table_name='home_article'):
-    """Collects title & category data from the Gunosy websites"""
+    """
+    Collects title & category data from the Gunosy websites
+
+    Parameters
+    --------------
+    db_name: str
+        name of a db
+    table_name: str
+        name of a table
+    """
     # connect to database
     conn = sqlite3.connect(db_name)
     curs = conn.cursor()

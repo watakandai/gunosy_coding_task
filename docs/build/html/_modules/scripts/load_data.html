@@ -1,0 +1,224 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>scripts.load_data &#8212; doc_classify 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/cloud.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Noticia+Text|Open+Sans|Droid+Sans+Mono" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.cookie.js"></script>
+    <script type="text/javascript" src="../../_static/cloud.base.js"></script>
+    <script type="text/javascript" src="../../_static/cloud.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head><body>
+    <div class="relbar-top">
+        
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+    <li><a href="../../index.html">doc_classify 0.0.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    </div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for scripts.load_data</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This script loads train and test data</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">dill</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">sqlite3</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">sleep</span>
+<span class="kn">from</span> <span class="nn">scripts.utils</span> <span class="k">import</span> <span class="n">ProgressPrinter</span><span class="p">,</span> <span class="n">MorphologicalAnalyzer</span>
+<span class="kn">from</span> <span class="nn">scripts.utils</span> <span class="k">import</span> <span class="n">replace_any_number_in_str_with_0</span>
+
+
+<div class="viewcode-block" id="DBManager"><a class="viewcode-back" href="../../load_data.html#scripts.load_data.DBManager">[docs]</a><span class="k">class</span> <span class="nc">DBManager</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    connect to a database and manage the data</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    db_name: str</span>
+<span class="sd">        name of a database</span>
+<span class="sd">    table_name: str</span>
+<span class="sd">        name of a table</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_name</span><span class="p">,</span> <span class="n">table_name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_name</span> <span class="o">=</span> <span class="n">db_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">table_name</span> <span class="o">=</span> <span class="n">table_name</span>
+        <span class="n">conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">db_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">curs</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+
+<div class="viewcode-block" id="DBManager.select"><a class="viewcode-back" href="../../load_data.html#scripts.load_data.DBManager.select">[docs]</a>    <span class="k">def</span> <span class="nf">select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        select data whose key is &quot;s&quot; from the table</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------------</span>
+<span class="sd">        s: str</span>
+<span class="sd">            name of a key (column)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">curs</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT </span><span class="si">%s</span><span class="s2"> FROM </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">curs</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DBManager.select_all"><a class="viewcode-back" href="../../load_data.html#scripts.load_data.DBManager.select_all">[docs]</a>    <span class="k">def</span> <span class="nf">select_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;selects all the columns from the table&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="load_data"><a class="viewcode-back" href="../../load_data.html#scripts.load_data.load_data">[docs]</a><span class="k">def</span> <span class="nf">load_data</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="n">table_name</span><span class="p">,</span> <span class="n">word_class</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;名詞&quot;</span><span class="p">,</span> <span class="s2">&quot;動詞&quot;</span><span class="p">],</span> <span class="n">shuffled</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;data.pkl&#39;</span><span class="p">,</span> <span class="n">use_pkl</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    loads data and parse sentence into words</span>
+
+<span class="sd">    Parameter</span>
+<span class="sd">    ---------------</span>
+<span class="sd">    db_name: str</span>
+<span class="sd">        name of a database to read from/write to</span>
+<span class="sd">    table_name: str</span>
+<span class="sd">        name of a table</span>
+<span class="sd">    word_class: list of str</span>
+<span class="sd">        word classes to extract</span>
+<span class="sd">    shuffled: bool</span>
+<span class="sd">        whether to shuffle data</span>
+<span class="sd">    filename: str</span>
+<span class="sd">        file name of a pkl file to save parsed data</span>
+<span class="sd">    use_pkl: bool</span>
+<span class="sd">        whether to use pickled data</span>
+<span class="sd">    verbose: bool</span>
+<span class="sd">        whether to print debug messages</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Load parsed data if specified, else parse raw data</span>
+    <span class="k">if</span> <span class="n">use_pkl</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="c1"># load parameters from pkl file</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">categories</span><span class="p">,</span> <span class="n">titles</span><span class="p">,</span> <span class="n">texts</span> <span class="o">=</span> <span class="n">dill</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># connect to database</span>
+        <span class="n">db_manager</span> <span class="o">=</span> <span class="n">DBManager</span><span class="p">(</span><span class="n">db_name</span><span class="o">=</span><span class="n">db_name</span><span class="p">,</span> <span class="n">table_name</span><span class="o">=</span><span class="n">table_name</span><span class="p">)</span>
+        <span class="c1"># load data</span>
+        <span class="n">raw_data</span> <span class="o">=</span> <span class="n">db_manager</span><span class="o">.</span><span class="n">select_all</span><span class="p">()</span>
+
+        <span class="c1"># Morphological Analyzer</span>
+        <span class="n">ma</span> <span class="o">=</span> <span class="n">MorphologicalAnalyzer</span><span class="p">(</span><span class="n">word_class</span><span class="o">=</span><span class="n">word_class</span><span class="p">)</span>
+        <span class="c1"># divide into words using morphological analysis</span>
+        <span class="n">categories</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">titles</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">texts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">progress</span> <span class="o">=</span> <span class="n">ProgressPrinter</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">raw_data</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">raw_data</span><span class="p">:</span>
+            <span class="n">category</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="n">ma</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">replace_any_number_in_str_with_0</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">ma</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">replace_any_number_in_str_with_0</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span>
+            <span class="n">categories</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">category</span><span class="p">)</span>
+            <span class="n">titles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+            <span class="n">texts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+            <span class="n">progress</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s1">&#39;Num:</span><span class="si">%i</span><span class="s1">, Cat:</span><span class="si">%s</span><span class="s1">, Title:</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">title</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">verbose</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Num:</span><span class="si">%i</span><span class="s1">, Cat:</span><span class="si">%s</span><span class="s1">, Title:</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">title</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Texts: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">text</span><span class="p">))</span>
+
+        <span class="c1"># save parameters</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dill</span><span class="o">.</span><span class="n">dumps</span><span class="p">([</span><span class="n">categories</span><span class="p">,</span> <span class="n">titles</span><span class="p">,</span> <span class="n">texts</span><span class="p">]))</span>
+
+    <span class="k">if</span> <span class="n">shuffled</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">D</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">categories</span><span class="p">,</span> <span class="n">titles</span><span class="p">,</span> <span class="n">texts</span><span class="p">))</span>
+        <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">D</span><span class="p">)</span>
+        <span class="n">categories</span><span class="p">,</span> <span class="n">titles</span><span class="p">,</span> <span class="n">texts</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">D</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">categories</span><span class="p">,</span> <span class="n">titles</span><span class="p">,</span> <span class="n">texts</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+    
+    
+        <div class="sidebar-toggle-group no-js">
+            
+            <button class="sidebar-toggle" id="sidebar-hide" title="Hide the sidebar menu">
+                 «
+                <span class="show-for-small">hide menu</span>
+                
+            </button>
+            <button class="sidebar-toggle" id="sidebar-show" title="Show the sidebar menu">
+                
+                <span class="show-for-small">menu</span>
+                <span class="hide-for-small">sidebar</span>
+                 »
+            </button>
+        </div>
+    
+      <div class="clearer"></div>
+    </div>
+    <div class="relbar-bottom">
+        
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> &nbsp; &nbsp;</li>
+    <li><a href="../../index.html">doc_classify 0.0.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    </div>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, kandai.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+    <!-- cloud_sptheme 1.4 -->
+  </body>
+</html>

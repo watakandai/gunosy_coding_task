@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Welcome to doc_classify’s documentation! &#8212; doc_classify 0.0.1 documentation</title>
+    <title>Running script for collecting, training, testing &#8212; doc_classify 0.0.1 documentation</title>
     <link rel="stylesheet" href="_static/cloud.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Noticia+Text|Open+Sans|Droid+Sans+Mono" />
@@ -35,7 +35,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> &nbsp; &nbsp;</li>
-    <li><a href="#">doc_classify 0.0.1 documentation</a> &#187;</li>
+    <li><a href="index.html">doc_classify 0.0.1 documentation</a> &#187;</li>
  
       </ul>
     </div>
@@ -47,18 +47,57 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="welcome-to-doc-classify-s-documentation">
-<h1>Welcome to doc_classify’s documentation!<a class="headerlink" href="#welcome-to-doc-classify-s-documentation" title="Permalink to this headline">¶</a></h1>
-<div class="toctree-wrapper compound">
+  <div class="section" id="running-script-for-collecting-training-testing">
+<h1>Running script for collecting, training, testing<a class="headerlink" href="#running-script-for-collecting-training-testing" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-scripts.utils">
+<span id="run"></span><h2>run<a class="headerlink" href="#module-scripts.utils" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="scripts.utils.MorphologicalAnalyzer">
+<em class="property">class </em><code class="descclassname">scripts.utils.</code><code class="descname">MorphologicalAnalyzer</code><span class="sig-paren">(</span><em>word_class=['形容詞', '形容動詞', '感動詞', '副詞', '連体詞', '名詞', '動詞']</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/utils.html#MorphologicalAnalyzer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.utils.MorphologicalAnalyzer" title="Permalink to this definition">¶</a></dt>
+<dd><p>analyze a sentence and divides into list of words</p>
+<dl class="docutils">
+<dt>word_class: list of str</dt>
+<dd>word classes to extract</dd>
+</dl>
+<dl class="method">
+<dt id="scripts.utils.MorphologicalAnalyzer.split">
+<code class="descname">split</code><span class="sig-paren">(</span><em>sentence</em>, <em>word_class=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/utils.html#MorphologicalAnalyzer.split"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.utils.MorphologicalAnalyzer.split" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>sentence: str</dt>
+<dd>sentence to be split</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="scripts.utils.ProgressPrinter">
+<em class="property">class </em><code class="descclassname">scripts.utils.</code><code class="descname">ProgressPrinter</code><span class="sig-paren">(</span><em>iter_max</em>, <em>interval=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/utils.html#ProgressPrinter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.utils.ProgressPrinter" title="Permalink to this definition">¶</a></dt>
+<dd><p>it frequently prints a progress percentage
+and also prints out a str given as an argument</p>
+<dl class="docutils">
+<dt>iter_max: int</dt>
+<dd>max number of iterations</dd>
+<dt>interval: float</dt>
+<dd>determines frequency of print message</dd>
+<dt>curr_thres: float</dt>
+<dd>current threshold which will be incremented</dd>
+<dt>i: int</dt>
+<dd>current iteration</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scripts.utils.replace_any_number_in_str_with_0">
+<code class="descclassname">scripts.utils.</code><code class="descname">replace_any_number_in_str_with_0</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scripts/utils.html#replace_any_number_in_str_with_0"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scripts.utils.replace_any_number_in_str_with_0" title="Permalink to this definition">¶</a></dt>
+<dd><p>replace any number with 0 in a string</p>
+<dl class="docutils">
+<dt>text: str</dt>
+<dd>a sentence</dd>
+</dl>
+</dd></dl>
+
 </div>
-</div>
-<div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
-<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
-<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
-</ul>
 </div>
 
 
@@ -67,17 +106,19 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper"><div class="sphinx-toc sphinxlocaltoc">
-    <h3><a href="#">Page contents</a></h3>
+    <h3><a href="index.html">Page contents</a></h3>
     <ul>
-<li><a class="reference internal" href="#">Welcome to doc_classify’s documentation!</a></li>
-<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+<li><a class="reference internal" href="#">Running script for collecting, training, testing</a><ul>
+<li><a class="reference internal" href="#module-scripts.utils">run</a></li>
+</ul>
+</li>
 </ul>
 
   </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/index.rst.txt"
+      <li><a href="_sources/utils.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -125,7 +166,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> &nbsp; &nbsp;</li>
-    <li><a href="#">doc_classify 0.0.1 documentation</a> &#187;</li>
+    <li><a href="index.html">doc_classify 0.0.1 documentation</a> &#187;</li>
  
       </ul>
     </div>
