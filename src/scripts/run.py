@@ -147,11 +147,11 @@ def train_classifier():
     # load classifiers
     nb = NaiveBayes(T=category_lists)
     rfc = RFC(random_state=42)
-    param_grid = { 
-    'n_estimators': [200, 500],
-    'max_features': ['auto', 'sqrt', 'log2'],
-    'max_depth' : [4,5,6,7,8],
-    'criterion' :['gini', 'entropy']
+    param_grid = {
+        'n_estimators': [200, 500],
+        'max_features': ['auto', 'sqrt', 'log2'],
+        'max_depth': [4, 5, 6, 7, 8],
+        'criterion': ['gini', 'entropy']
     }
     rfc_cv = GridSearchCV(rfc, param_grid=param_grid, cv=4, verbose=1)
     # xgb = xgboost.XGBClassifier()

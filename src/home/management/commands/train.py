@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand
 from ...models import Article
 from scripts import run
 
+
 # BaseCommandを継承して作成
 class Command(BaseCommand):
     help = 'Collects data from the internet'
