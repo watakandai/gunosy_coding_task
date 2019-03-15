@@ -13,6 +13,8 @@ from urllib.error import HTTPError, URLError
 from janome.tokenizer import Tokenizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.ensemble import RandomForestClassifier as RFC
+from sklearn.model_selection import GridSearchCV
+import xgboost
 from scripts.classifiers import NaiveBayes
 from scripts.load_data import load_data
 # https://note.nkmk.me/python-janome-tutorial/
@@ -121,7 +123,7 @@ def collect_and_save_data(db_name='articles.db', table_name='home_article'):
     conn.close()
 
 
-def test_classifier():
+def train_classifier():
     """
     Trains classifiers with collected dataset that is saved in db
     and test with test data which is separated with train data
@@ -144,26 +146,26 @@ def test_classifier():
 
     # load classifiers
     nb = NaiveBayes(T=category_lists)
-    rfc = RFC(n_estimators=100, n_jobs=-1)
+    rfc = RFC(random_state=42)
+    param_grid = { 
+    'n_estimators': [200, 500],
+    'max_features': ['auto', 'sqrt', 'log2'],
+    'max_depth' : [4,5,6,7,8],
+    'criterion' :['gini', 'entropy']
+    }
+    rfc_cv = GridSearchCV(rfc, param_grid=param_grid, cv=4, verbose=1)
+    # xgb = xgboost.XGBClassifier()
+    # xgb_cv = GridSearchCV(xgb, {'n_estimators': [50,100,200]}, cv=5, verbose=1)
 
     # train with traning data
     nb.fit(X[:train_len], T[:train_len])
-    rfc.fit(features[:train_len], T[:train_len])
+    rfc_cv.fit(features[:train_len], T[:train_len])
+    # xgb_cv.fit(features[:train_len], T[:train_len])
 
     # test with test data
     accuracy_nb = nb.score(X[train_len:], T[train_len:], verbose=False)
-    accuracy_rfc = rfc.score(features[train_len:], T[train_len:])
+    accuracy_rfc = rfc_cv.score(features[train_len:], T[train_len:])
+    # accuracy_xgb = xgb_cv.score(features[train_len:], T[train_len:])
     print('Accuracy: Naive Bayes ... %2.5f' % (accuracy_nb))
     print('Accuracy: Random Forest ... %2.5f' % (accuracy_rfc))
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Options as follows')
-    parser.add_argument('--collect', action='store_true')
-    parser.add_argument('--test', action='store_true')
-    args = parser.parse_args()
-
-    if args.collect:
-        collect_and_save_data()
-    if args.test:
-        test_classifier()
+    # print('Accuracy: XGBoost ... %2.5f' % (accuracy_xgb))

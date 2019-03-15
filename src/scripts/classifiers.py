@@ -80,7 +80,6 @@ class NaiveBayes():
             scores.append(score)
 
         # choose the highest score category as a predicted category
-        print(scores)
         indx = scores.index(max(scores))
         category = self.T[indx]
         score_exp = math.exp(scores[indx])
